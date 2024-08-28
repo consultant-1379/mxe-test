@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="swuc" class="com.ericsson.mxe.jcat.config.User">
+        <property name="userName" value="swuc" />
+        <property name="password" value="swuc" />
+        <property name="prompt" value="\$" />
+    </bean>
+    <bean id="ericsson" class="com.ericsson.mxe.jcat.config.User">
+        <property name="userName" value="ericsson" />
+        <property name="password" value="klotklot" />
+        <property name="prompt" value="\$" />
+    </bean>
+    <bean id="vmxuser" class="com.ericsson.mxe.jcat.config.User">
+        <property name="userName" value="vmxuser" />
+        <property name="password" value="********" />
+        <property name="prompt" value="\$" />
+    </bean>
+    <bean id="vmxuserRoot" class="com.ericsson.mxe.jcat.config.User">
+        <property name="userName" value="root" />
+        <property name="password" value="********" />
+        <property name="prompt" value="#" />
+    </bean>
+</beans>

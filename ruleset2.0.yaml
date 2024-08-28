@@ -1,0 +1,56 @@
+modelVersion: 2.0
+
+docker-images:
+ - java-maven-builder: armdocker.rnd.ericsson.se/sandbox/adp-staging/adp-cicd/bob-javamvnbuilder:54cbda3
+
+properties:
+  - settings: mxe-jcat/settings.xml
+env:
+  - TESTENVIRONMENT (default=remoteLinuxSoi)
+
+rules:
+  # Aggregate for all of the typically used rules
+  build-and-run-test:
+    - rule: build-test
+    - rule: run-test
+
+  build-test:
+    - task: mvn-package
+      docker-image: java-maven-builder
+      cmd: mvn -s ${settings} clean install -f mxe-jcat
+
+  sonar-verification:
+    - task: mvn-package
+      docker-image: java-maven-builder
+      cmd: mvn -s ${settings}
+           sonar:sonar
+           -f mxe-jcat
+           -Dmaven.test.skip=true
+           -Dsonar.host.url="https://sonarqube.lmera.ericsson.se"
+           -Dsonar.login=f5a4873f8023344b7ca0af62001549d845ddb174
+           -Dsonar.analysis.mode=preview
+           -Dsonar.issuesReport.console.enable=true
+           -Dsonar.issuesReport.html.enable=true
+           -Dsonar.issuesReport.json.enable=true
+           -Dsonar.report.export.path=sonar-report.json
+
+  run-test:
+    - task: run-test
+      docker-image: java-maven-builder
+      cmd: bash -c "
+           jcatBundlePath=\$(ls -1t mxe-jcat/target/mxe-jcat-bundle*jar | head -1);
+           sed -i 's@<parameter name=\"host\" value=\".*\" */>@<parameter name=\"host\" value=\"${env.TESTENVIRONMENT}\"/>@g' mxe-jcat/target/testsuites/mxeSuite.xml;
+           java -Djcat.logging=DEBUG -Dlogdir=mxe-jcat-test-log -jar \$jcatBundlePath mxe-jcat/target/testsuites/mxeSuite.xml;
+           "
+
+  run-released-test:
+    - task: run-released-test
+      docker-image: java-maven-builder
+      cmd: bash -c "
+           wget https://arm.rnd.ki.sw.ericsson.se/artifactory/proj-cerberus-release-local/com/ericsson/mxe/mxe-jcat/maven-metadata.xml --output-document mxe-jcat-maven-metadata.xml;
+           latestJcatVersion=\$(grep \<version\> mxe-jcat-maven-metadata.xml | sed -e 's/<[^>]*>//g' | sed -e 's/^[ \t]*//' | tail -1);
+           wget https://arm.rnd.ki.sw.ericsson.se/artifactory/proj-cerberus-release-local/com/ericsson/mxe/mxe-jcat/\$latestJcatVersion/mxe-jcat-\$latestJcatVersion-bundle.zip --output-document mxe-jcat-bundle.zip;
+           unzip -o mxe-jcat-bundle.zip;
+           sed -i 's@<parameter name=\"host\" value=\".*\" */>@<parameter name=\"host\" value=\"${env.TESTENVIRONMENT}\"/>@g' testsuites/mxeSuite.xml;
+           java -Djcat.logging=DEBUG -Dlogdir=mxe-jcat-test-log -jar mxe-jcat-bundle-\$latestJcatVersion.jar testsuites/mxeSuite.xml;
+           "

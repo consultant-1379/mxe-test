@@ -1,0 +1,37 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="MxeSuite">
+
+    <listeners>
+        <listener class-name="se.ericsson.jcat.fw.fixture.testng.JcatNGTestListener" />
+        <listener class-name="se.ericsson.jcat.fw.fixture.testng.JcatNGSuiteListener" />
+    </listeners>
+
+    <parameter name="host" value="localLinux" />
+
+    <test name="Model Test">
+        <classes>
+            <class name="com.ericsson.mxe.jcat.test.MxeModelTest">
+                <parameter name="packageName" value="armdocker.rnd.ericsson.se/proj-mxe-models/image/img_inception3:v0.0.1" />
+                <parameter name="targetPackageName" value="armdocker.rnd.ericsson.se/proj-mxe-models/image/img_inception3:v0.0.2" />
+                <parameter name="modelName" value="img-inception3" />
+                <parameter name="modelVersion" value="0.0.1" />
+                <parameter name="targetModelVersion" value="0.0.2" />
+                <parameter name="unknownModelVersion" value="0.0.3" />
+                <parameter name="instance" value="1" />
+                <methods>
+                    <exclude name="testMxeModelStart" />
+                </methods>
+            </class>
+        </classes>
+    </test>
+    <test name="Flow Test">
+        <classes>
+            <class name="com.ericsson.mxe.jcat.test.MxeFlowTest">
+                <parameter name="flowName" value="jcattestflow" />
+                <parameter name="flowDeploymentName" value="jcattestflowdeployment" />
+                <parameter name="flowFile" value="flows/flow.xml.gz" />
+            </class>
+        </classes>
+    </test>
+</suite>

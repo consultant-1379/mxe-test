@@ -1,0 +1,12 @@
+/.project
+/mxe-jcat/.settings/
+*.idea
+*.iml
+mxe-jcat-test-log/*
+test-output/*
+
+### BOB ###
+.bob
+
+### Maven via BOB ###
+.m2
